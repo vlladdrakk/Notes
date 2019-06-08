@@ -1,0 +1,585 @@
+* Introduction
+This is a compilations of my notes on the talks I attended at Maritime Devcon 2019
+* Session 1: The Good Code
+** Info
+   - Speaker: Chris Dail
+** Summary
+Some pointers and tips on what good code is and how to write it.
+** Notes:
+*** Not good code
+Don't repeat code.
+Use the right tool.
+Broken window effect:
+  Bad code causes carelessness.
+  Leads to more bad code.
+  AKA If it is already bad, you probably won't do much to make it any better.
+*** Good Code
+**** Qualities of good code
+     - Readability
+       - Why is this the most important?
+         1. you are not the only person that will be reading your code.
+         2. Future you will also have to read your code.
+         3. Reading vs Writing Code (70% / 30% when developing)
+     - Simple
+       1. Easily understood
+       2. Simple architecture and abstractions (low complexity)
+       3. One thing should do one thing
+     - No surprises
+       - Relates to simplicity.
+*** Deadlines
+We plan to fix it in the next release, but that doesn't often happen.
+Code reviews: don't let more bad code slip through.
+*** Quantity vs quality
+average 15-50 bugs per 1000 lines of code
+Therefore, less code means fewer bugs.
+Cannot be done artificially
+ - Needs to be readable
+ - Quality - Fewer LOC, but make it more meaningful
+ - Keep it simple
+*** Naming
+Names should reveal the intent and have meaningful distinctions, no noisy (redundant) words.
+Make it human readable/searchable. Follow conventions.
+- Variables/Classes: Nouns
+- Methods/Functions: Verbs, be descriptive and don't worry about length.
+  - Reading a function name should give you an idea of what it does.
+- Libraries/modules: Don't do things like utils, of course it is a util. Use something that describes what it does.
+*** Functions
+    - Functions should do just one thing.
+    - Keep them short (20 lines)
+    - Avoid side effects (with global state)
+**** Classes and Objects
+     - The class should have one theme
+     - Single level of abstraction
+     - Avoid "Junk Drawer" classes (like a util class)
+**** Magic numbers
+     - Use constants defined in a single place to enhance readability.
+     - Explains what the number is.
+**** Comments
+     - Explains the intent of the code.
+     - Answer why, not what or how.
+     - Only add comments when it will enhance readability
+     - If you need to write a lot of comments, maybe the code should be refactored.
+     - Avoid redundant comments that just say what the code is doing.
+     - Avoid misleading comments that lie about what the code is doing.
+     - References to bug numbers should not be necessary, use vcs
+**** Version Control
+     - VC History should be treated like code
+       - It should be readable, you should be able to know what the purpose of the commit is from the name.
+       - Should read like a story
+     - Use Small commits
+     - Small PRs
+**** Formatting
+     - Keep files short
+     - keep lines short
+     - Low levels of indentation
+     - Use whitespace to separate paragraphs of code
+     - Vars should be declared close to where they are used.
+     - Instance variables at the top of class
+**** Error handling
+     - Exceptions should be exceptional
+     - Behave in reasonable ways instead of throwing errors
+       - EX/ Return an empty list when no records found
+     - Early return for invalid cases
+     - No empty catch blocks
+**** Scout Rule
+     - Leave it cleaner then when you found it.
+**** When in Rome
+     - Follow the code style of the codebase you are in
+     - Follow the conventions of the language
+     - It is important to keep the code consistent.
+     - Linters help with this.
+**** DRY - Don't repeat yourself
+     - Reuse code - Functions, Libraries, classes
+     - Redundant comments
+     - Multi-developer teams
+       - Duplication of validation/util functions
+       - Centralize and make reuse easy
+       - Always look before you write, someone may have already implemented it.
+**** Copy and Paste
+     - Creates repetition
+       - You can duplicate a bug
+     - You may not understand the code being copied.
+       - If you don't fully understand the code you may be introducing a new bug
+     - Reuse with a function
+**** Clever Code
+     - Be wary of "clever" code (aka, cute, magic)
+     - It is likely hard to read/debug
+     - The dull, straightforward way may be boring, but it can be better if it is easy to understand.
+     - Keep in mind the level of experience on your team
+**** Why is it hard for people to write good code?
+     - BBC: Pillars of Computational Thinking
+       - Decomposition
+       - Abstraction
+       - Pattern recognition
+       - Algorithms
+     - Good code is more art then math
+       - Creating code that is easy to read and understand is more art then math
+     - Good code tells a story
+       - The code describes the application, it describes the purpose.
+       - The computer takes it literally, it may work but the computer can't determine the purpose
+** Questions
+   1. What about WIP commits when you need to switch over to work on something else
+      * You can make a WIP commit and don't push it, you can amend it later
+      * git stash
+   2. What languages make good code easy?
+      - Not PHP or VB
+      - It depends on the developer
+      - Kotlin > Java, you can be more expressive
+   3. A lack of understanding causes messier code.
+* Session 2: Mesh isn't just for the club (anymore)
+** Info
+   - Speaker: Josh Cormier
+** Summary
+An overview of what a mesh network is and how it works. It covers mesh service, control planes, and proxies.
+** Notwes:
+*** Terms
+    - What is a distributed system?
+      - A group of related, yet independently resourced processes.
+      - Okay, but why?
+        - Resilience
+          - Fault tolerance
+        - Performance
+          - Horizontal scaling, More throughput
+        - Economics
+          - Scale up individual sections of the system
+          - Scale down lightly use apis
+    - Microservices
+      - Services that do not share
+        - Different databases
+        - Not tightly coupled
+        - Can run independant of each other
+        - You should not need to deploy code in a certain order
+*** Problems
+    - Coordination issues
+      - race conditions
+      - deadlock
+      - Handling dropped packets/network hostility
+    - Deploy without downtime
+      - ability to make changes to specific services without side effects
+    - Resilience
+    - Configuration
+    - Observability
+      - Monitoring
+      - Storage constraints on telemetry data
+*** Agnostic configuration
+    - A service is able to run regardless of where it is
+    - Pulling metrics instead of pushing. (just have an endpoint)
+    - Relying on the environment to transport telemetry.
+    - examples:
+      - Docker logging to stdout
+      - Prometheus log pulling
+*** Mesh definition
+    - Noun: A weblike pattern or construction
+    - Verb: to coordinate closely
+    - Service mesh:
+      - Service level
+      - Data plane
+      - Control plane: Configuration, routing where things go.
+      - Service discovery and telemetry.
+    - Each application container has a proxy that directs traffic on the mesh.
+    - Mesh nodes (proxies) act like a load balancer for how instance a would connect with other instances.
+*** Case studies
+    - Discoverability: The mesh control plane defines the architecture
+    - Retry failure:
+      - 4 layers deep with 5 retries at each level
+      - Load overwhelmed the second layer which lead to 5^3 retries per request.
+      - A single error would cause exponential requests
+      - Had to restart to flush queues
+      - How could a mesh have helped?
+        - All communication goes through the service mesh.
+        - Distributed circuit breakers managed by control plane (Stop new requests to a single instance/service to allow recovery)
+      - Resolution:
+        - Tried to disable retries
+          - The fix was in the code, not at the network layer.
+        - With a mesh service the proxy handles the retry logic. The service sends requests to the proxy.
+    - Security: Encrypting traffic
+      - Moving from no encryption to having encryption
+      - All communications go through the service mesh, so the tls encryption can be handled without modifying the service or the host.
+      - Zero trust networking
+    - New feature roll out
+      - Add now features in a safe manner
+      - Feature flags are okay, but they can be a cause of spaghetti code
+        - Controlling features on a per customer basis,
+        - Negatively effect readability
+      - Service mesh: Traffic distribution
+        - This has the ability to shape traffice
+          - A/B deployments
+          - Percentage based routing
+          - Tenant based routing
+          - Ghost Traffic
+            - Send a mirror traffic to a new version of the service to see how it is handled
+            - The mesh can discard responses from the mirrored service
+        - If there is a failure, not all of the requests are effected.
+*** Problems
+    - Latency
+      - Unavoidable
+      - Adds extra hops
+    - Resource cost
+      - A proxy is required for every instance of a service
+      - Just managing a mesh service will add resource cost on servers
+    - Additional maintenance
+*** Where do you start?
+**** Pick a mesh service
+     - There is no industry standard
+     - It is a big investment, you could get locked in
+**** Open standards
+     - Mesh services
+       - SMI https://smi-spec.io (for K8s)
+     - Telemetry
+       - Opentelemetry (https://opentelemetry.io)
+** Questions
+   1. What is the resiliency of a mesh?
+      - It depends on your orchestration system
+      - The service should be handling some errors
+   2. How do you deploy to clusters?
+      - Helm
+   3. Availability concerns of the mesh? What happens if the mesh fails?
+      - You can leave a failover configuration in the service.
+      - The orchestration layer should handle that.
+   4. What are your thoughts on the depth of services and apis?
+      - Shouldn't go too deep, maybe 5? Each layer eats time.
+* Session 3: CircuitPython: Python on microcontrollers
+** Info
+   - speaker: Dave Astels
+     - Freelances for Adafruit
+** Summary
+An overview of the origins of CircuitPython and the type of hardware that it can run on.
+** Notes:
+*** Where does your code run?
+    - Cloud?
+    - Desktop?
+    - Raspberry pi?
+    - Microcontrollers? <-- YAS
+*** microPython
+    - It is a from-scratch implementation of Python 3.4 targetting MCUs
+    - Supported by Micro:bit
+    - Bytecode VM
+    - JIT or AOT
+    - Targeted for professional developers
+      - Can be awkward to use
+      - Not that easy for kids/teachers/beginners
+*** CircuitPython
+    - Fork of microPython (By Adafruit)
+    - Targetting Microchip/Atmel SAMD21/51
+    - Aimed at education, beginners, makers, kids
+    - Can be run on Pi with a shim layer
+    - Features:
+      - Almost full python implementation, has most of the standard lib
+      - Easy to use
+      - REPL via USB/Serial
+      - MCU/SPI Flash shows up as USB
+      - The VM can auto-restart when files change
+      - Hardware abstractions to bring ease of use (abstract board pins and things like i2c)
+*** Hardware for CircuitPython
+    - Adafruit boards were the first
+    - Arduino, Sparkfun, Particle
+    - And many other independant boards
+    - Some boards:
+      - Teensy M0 (SAMD21)
+      - CircuitPlayground Express (SAMD21)
+        - good for education
+        - has baked in hardware
+          - leds
+          - speaker
+          - ir
+          - alligator clip friendly
+      - Feather M4 Express (SAMD51)
+      - Feather M4 AirLift (SAMD51)
+        - Built-in ESP32 for wifi
+      - PyPortal (SAMD51)
+        - Also has ESP32 for Wifi
+        - The bottom side is a tft touchscreen (https://www.adafruit.com/product/4116)
+      - MetroM4 Grand Central (SAMD51)
+        - Arduino Mega form factor
+      - PyGamer (SAMD51)
+        - Made to be a game platform
+*** Community
+    - Learning guides on Adafruit (https://learn.adafruit.com/)
+    - Discord server (https://adafru.it/discord)
+    - Forums (https://forums.adafruit.com/)
+    - Github (https://github.com/adafruit/circuitpython)
+** Questions
+   1. Where can you buy the hardware?
+      - BJW Electronics in Moncton
+      - adafruit.com
+      - buyapi.ca
+   2. Can it run Numpy?
+      - Maybe???
+   3. Is there mechanisms for hardware interrupts?
+      - No, not yet, but it is supported in microPython
+   4. Is there anything more than print statements for debugging? Maybe interactive debugging?
+      - No, there isn't due to resource restrictions.
+      - It is mostly just print statements.
+* Session 4: Securing the cloud: How not to end up in the news
+** Info
+   - Speaker: Matt Taylor
+     - Works at Akiri
+   - slides: https://github.com/matt-taylor-nb/securing-the-cloud
+** Summary
+An overview of security tools available on AWS and how to use them.
+** Notes:
+*** Why are we here?
+    - This is about securing cloud platforms
+    - This is not about writing secure code/applications
+    - What will be covered:
+      - Look at some breaches
+      - Common security misconceptions
+      - Best practices
+      - Look at some AWS native tools
+*** Previous data breaches
+**** Reasons to use the cloud
+     - Easy
+     - cost efficient
+     - secure
+ But is it that secure?
+**** Accenture
+     - Lost data from open S3 buckets
+     - Fixed it in one day
+**** GoDaddy
+     - Unprotected S3 bucket
+     - GoDaddy did not respond to the researcher
+**** SpyPhone
+     - Unprotected S3 Bucket
+**** Facebook
+     - third party company, 540+ Mil user accounts
+**** NS government
+     - Teen took advantage of Freedom of Information portal
+     - Incrementing id
+     - 250 raw, unredacted documents were attained
+*** The Cloud really is secure
+    - AWS itself hass never been compromised
+    - All of the above mentioned breaches were the result of poor configurations
+    - AWS provides the building blocks, they are secure, but people can use them in an insecure way.
+*** What can we do?
+    - Understand what your responsibility is in the Cloud
+    - Ask lots of questions
+    - Don't leave your s3 bucket open
+      - The default is now private (previously it was public)
+    - remember that security is everyone's responsibility
+*** Shared responsibility
+    - AWS is responsible for security of the cloud
+    - We are responsible for security in the cloud
+*** Best practices
+**** AWS Account Setup
+     - Use a group email address
+       - This will be the root account, it will have access to everything
+       - If it is an individual email, that person will own the account
+     - Use a company phone number
+     - Configure alternate contact info
+       - Billing, security, etc
+     - Answer all Security Challenge Question
+       - For recovering the account.
+**** User Accounts
+     - Lock away the Root account
+       - It should only be used for initial setup
+     - Use individual IAM User accounts, NEVER share accounts.
+       - This will be used for day to day activities
+       - Assign permissions based on usage
+       - Permissions are granted as a white list, by default all permissions are denied
+     - Operate under a least privileged mode for accounts
+     - Assign permissions to groups and add users to groups
+     - Have a documented plan for user creation, permission change, and user removal
+**** Infrastructure
+     - Don't open to the public internet anything that doesn't need it
+     - Separate your workload into private networks
+       - Using VPCs
+     - Encrypt and backup your data
+     - Avoid snowflake deployments
+       - Keep your configuration in code
+         - EX/ Terraform
+     - Have an approval process for new infrastructure
+       - Doesn't need to be a huge thing, but a sanity check is good.
+     - Look up Service Best Practices
+       - There are 150 different services on AWS, know how to best use each of them
+     - Use instance profiles instead of credentials
+       - They work like user accounts in IAM
+       - It authenticates through the IAM service
+       - You can restrict access to different services
+       - Removes the need for hardcoded credentials
+**** Monitering/Auditing/Reporting
+     - CloudTrail, an infrastructure auditing service
+       - It records actions taken in AWS
+     - To get alerts from CloudTrail configure it to use cloudwatch
+       - You can use this to set alarms based on security events
+     - Use AWS Config
+       - Allows you to set AWS wide rules (Like banning public S3 buckets)
+       - It will send an alert when the rules are being broken
+     - Use Guard Duty
+       - AWS IDS
+     - Test your security
+**** Extra credit
+     - Use a third party service to test your security
+     - Verify the security of any 3rd parties that you trust your data with
+       - Many breaches come from third party companies
+       - It doesn't matter who the third party is, it is your data, you are responsible (that is how the public will see it)
+     - Use AssumeRole for access
+       - Cross-Account Access
+       - This is how you use multiple accounts
+       - You can have all logging in a separate account
+     - Use separate AWS Accounts for workload
+       - Different one for development, staging, and productio
+     - Trusted Advisor
+       - Gives advice on your setup.
+       - Tells you if you are violating best practices
+** Questions
+   1. When do we use AssumeRole?
+      - If you are using multiple accounts for managing AWS you should definitely look into AssumeRole.
+* Session 5: Short on time? Accelerate your data science with GPUs
+** Info
+   - Speaker: Axel-Christion Guei
+     - Machine learning specialist at Teledyne Caris
+** Summary
+A walkthrough of how using RAPIDS and GPUs can increase the productivity of data scientists.
+** Notes:
+*** When do you need a GPU?
+    - When training a DNN
+    - Playing video games
+    - Mining bitcoin
+*** Challenge: Day in a life of a data scientist
+**** Goal: Identify astropysical sources in the night sky
+**** Datasets:
+     - set of metadata containing 11 features describing each object
+     - Time series observations with 6 features /object
+     - 19 GB of data
+     - 14 different astrophysical objects to detect.
+**** Tasks:
+     - Define performance goal
+     - Conduct data analysis and ETL
+     - Train several ML models
+ETL: Extract Transform Load
+ - Extract the data from a source
+ - Transform the data so it is meaningful
+ - Load the data into a destination
+**** A cause of slowness
+     - Too many data transfers between CPU and Memory
+**** A solutiong: GPUs
+     - Software stacks:
+       - Hadoop (job distribution framework)
+       - Spark (in-memory processing)
+       - Nvidia Rapids (GPU framework)
+     - Rapids loads the data directly into the GPU memory, so there is less overhead there.
+*** Performance
+Using on GPU the data loading time is drastically reduced.
+The GPU trained about 5 times faster than the CPU.
+*** RAPIDS Ecosystem
+    - Numba
+    - CuPy
+    - Dask (allow jobs to be distributed)
+*** Conclusion
+**** Pros
+     - More than 100% performance boost
+     - More cost effective then large cpu clusters
+     - Easy integration with popular DL frameworks
+     - Highly scalable
+     - Python API available
+**** Cons
+     - High GPU memory usage
+     - cuDF does not cover all pandas API yet
+** Questions
+   1. Can we use this on a GPU instance?
+      - Yes, there are images available on AWS
+* Session 6: How Design Systems can improve your design/engineering process
+** Info
+   - Speaker: Kolton Gagnon
+     - Works at Cvent
+** Summary
+An overview of how you can use a design system to improve the consistency and efficiency of the design and development process.
+** Notes:
+*** When there is growth in a team
+Without having a process in place for design there can be design rot. An increased team size can increase complexity.
+*** Design Systems
+    - Figma
+    - Highly reused components can be turned into master components.
+    - Changes to the component will change in all instances of the component.
+    - Changes can be published to your team
+Using this there is increased efficiency, consistency, and structure
+*** How to solve implementation issues
+    - There are inconsistencies between the design and the code
+    - Options:
+      1) A components folder
+         - What happens when more projects need to use these components?
+         - Copy and pasting is probably going to happend
+      2) Components Repo + NPM
+         - That way the components can be installed by NPM
+         - There are issues if the everything is in one NPM package then they all need to be upgraded with one version.
+      3) How does React do it?
+         - Use separate versions for each components in the repo
+         - You can use Lerna to manage npm versions
+*** Component documentation
+    - Storybook creates a library for each and every component
+    - You can change the props of a component using Knobs
+    - Documentation can be embeded in notes
+    - Figma designs can be integrated into storybook
+** Questions
+   1. Can you change the colour of your component based on where it is used?
+      - Yes, you can set it to take a theme
+* Session 7: Smart Community: What can we do to make this an actual reality
+** Info
+   - Speaker: Book Sadprasid
+     - Works for Ignite Fredericton
+** Summary
+What Fredericton is doing to be a more tech savvy city
+** Notes:
+*** Smart city vs Smart Community
+    - What is the difference?
+      - Smart city: makes cities work better.
+        - Greater efficiency in municipal services
+        - focused on technology
+      - Smart community: Making better cities
+        - Make the lives of the citizens better
+        - Focused on Community and growth
+Smart communities use technology as a means to an end, putting more effort into
+- Developing a workforce
+- Crafting an innovation ecosystem
+- Expanding access to digital skills and tech
+- Engaging citizens and businesses
+
+Smart communities are all about the people
+*** Why become a smart community?
+    - better parking
+    - better energy management
+    - better real-time services
+*** What are we doing?
+    - Digital Fredericton project
+      - Putting more services online
+      - Working with tech companies like Hotspot parking
+*** What the taskforce is working on
+**** Building on digital Fredericton
+     - Establish development zones
+       - labs, sandboxes, centres of excellence
+     - Early adoption policies
+     - Open data concepts
+     - Align with academia
+     - Analyze elements for economic growth
+     - Digital product development zone
+**** Digital product development living lab
+Use the city of Fredericton as a test bed for tech companies
+**** Collaborations and citizen involvement
+     - Fred-e Hack
+       - Smart city hackathon
+       - using iot sensor network
+* Session 8: fiasco.getInstance()
+** Info
+   - Speaker: Colin Casey
+** Summary
+** Notes:
+*** Singleton design pattern
+    - Protected constructor
+    - Static getInstance() method
+*** Drawbacks
+    - Global state
+    - Un-testable code
+    - hidden dependencies
+The singleton is an antipattern. 
+*** What problem is it trying to solve?
+In a project there can be a large object dependency graph.
+Adding a singleton does not need to make large changes to that graph. The singleton is a dependency, but it will be hidden from you in that dependency graph.
+*** How do you get around this problem?
+Use dependency injection.
+*** So why is it still used?
+    - Managing objects is hard
+    - :shrug: it works
+*** Code with empathy
+    - Your code will likely be used/maintained by others
+    - Implementing a singleton may negatively impact one of those people.
+    - Using a singleton is like peeing in the pool.
